@@ -64,7 +64,7 @@
         - not rebooted_today
 
     - name: Server status - Kernel not updated and server not rebooted
-      debug:
+      fail:
         msg:
           - "✘ Server {{ inventory_hostname }} is NOT running with latest kernel and did NOT reboot today"
           - "✘ Total packages updated today: {{ packages_updated.stdout }}"
