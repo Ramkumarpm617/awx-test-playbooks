@@ -44,10 +44,9 @@
       shell: rpm -qa --last | grep "$(date '+%a %d %b %Y')" | wc -l
       register: Packages_updated
 
-    - name: Scenario: Kernel updated and server rebooted today
+    - name: Kernel updated and server rebooted today
       debug:
         msg:
-          - "Scenario: Kernel updated and server rebooted today"
           - "Server - {{ inventory_hostname }} is running with latest kernel - {{ ansible_kernel }} and got rebooted today"
           - "There are totally {{ Packages_updated.stdout }} packages updated today"
       when:
@@ -63,12 +62,11 @@
         - kernel_updated_today
         - not rebooted_today
 
-    - name: Scenario: Kernel not updated and server did not reboot today
+    - name: Kernel not updated and server did not reboot today
       assert:
         that:
           - false
         fail_msg:
-          - "Scenario: Kernel not updated and server did not reboot today"
           - "Server - {{ inventory_hostname }} is not running with latest kernel and did not reboot today"
           - "There are totally {{ Packages_updated.stdout }} packages updated today"
       ignore_errors: yes
