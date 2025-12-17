@@ -62,7 +62,7 @@
         - kernel_updated_today
         - not rebooted_today
 
-    - name: Scenario: Kernel not updated and server did not reboot today
+    - name: Kernel not updated and server did not reboot today
       assert:
         that:
           - false
