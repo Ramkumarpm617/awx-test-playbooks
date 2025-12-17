@@ -1,4 +1,3 @@
----
 - name: Check reboot and kernel update status
   hosts: all
   gather_facts: yes
@@ -63,13 +62,11 @@
         - not rebooted_today
 
     - name: Kernel not updated and server did not reboot today
-      assert:
-        that:
-          - false
-        fail_msg:
+      debug:
+        msg:
           - "Server - {{ inventory_hostname }} is not running with latest kernel and did not reboot today"
           - "There are totally {{ Packages_updated.stdout }} packages updated today"
-        quiet: true
+      failed_when: true
       ignore_errors: yes
       when:
         - not rebooted_today
