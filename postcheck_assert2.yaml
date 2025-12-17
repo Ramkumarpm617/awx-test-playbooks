@@ -1,0 +1,152 @@
+---
+- name: Check reboot and kernel update status
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  tasks:
+
+    - name: Get last reboot date
+      shell: uptime -s | awk '{print $1}'
+      register: last_reboot
+      changed_when: false
+      no_log: true
+
+    - name: Get today's date in YYYY-MM-DD
+      shell: date +%F
+      register: current_date
+      changed_when: false
+      no_log: true
+
+    - name: Check if rebooted today
+      set_fact:
+        rebooted_today: "{{ last_reboot.stdout == current_date.stdout }}"
+      no_log: true
+
+    - name: Get latest kernel installation date
+      shell: "rpm -q --last kernel | head -n 1 | awk '{print $2, $3, $4, $5}'"
+      register: kernel_install
+      changed_when: false
+      no_log: true
+
+    - name: Get today's date
+      shell: "date '+%a %d %b %Y'"
+      register: today_date
+      changed_when: false
+      no_log: true
+
+    - name: Check if kernel was updated today
+      set_fact:
+        kernel_updated_today: "{{ kernel_install.stdout == today_date.stdout }}"
+      no_log: true
+
+    - name: Packages updated today
+      shell: rpm -qa --last | grep "$(date '+%a %d %b %Y')" | wc -l
+      register: Packages_updated
+
+    - name: Kernel updated and server rebooted today
+      debug:
+        msg:
+          - "Server - {{ inventory_hostname }} is running with latest kernel - {{ ansible_kernel }} and got rebooted today"
+          - "There are totally {{ Packages_updated.stdout }} packages updated today"
+      when:
+        - rebooted_today
+        - kernel_updated_today
+
+    - name: Server status - Kernel updated and but server did not reboot
+      debug:
+        msg:
+          - "Server - {{ inventory_hostname }} is running with latest kernel - {{ ansible_kernel }} but did not reboot today"
+          - "There are totally {{ Packages_updated.stdout }} packages updated today"
+      when:
+        - kernel_updated_today
+        - not rebooted_today
+
+    - name: Kernel not updated and server did not reboot today
+      assert:
+        that:
+          - false
+        fail_msg:
+          - "Server - {{ inventory_hostname }} is not running with latest kernel and did not reboot today"
+          - "There are totally {{ Packages_updated.stdout }} packages updated today"
+      ignore_errors: yes
+      when:
+        - not rebooted_today
+        - not kernel_updated_today
+
+---
+- name: Check reboot and kernel update status
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  tasks:
+
+    - name: Get last reboot date
+      shell: uptime -s | awk '{print $1}'
+      register: last_reboot
+      changed_when: false
+      no_log: true
+
+    - name: Get today's date in YYYY-MM-DD
+      shell: date +%F
+      register: current_date
+      changed_when: false
+      no_log: true
+
+    - name: Check if rebooted today
+      set_fact:
+        rebooted_today: "{{ last_reboot.stdout == current_date.stdout }}"
+      no_log: true
+
+    - name: Get latest kernel installation date
+      shell: "rpm -q --last kernel | head -n 1 | awk '{print $2, $3, $4, $5}'"
+      register: kernel_install
+      changed_when: false
+      no_log: true
+
+    - name: Get today's date
+      shell: "date '+%a %d %b %Y'"
+      register: today_date
+      changed_when: false
+      no_log: true
+
+    - name: Check if kernel was updated today
+      set_fact:
+        kernel_updated_today: "{{ kernel_install.stdout == today_date.stdout }}"
+      no_log: true
+
+    - name: Packages updated today
+      shell: rpm -qa --last | grep "$(date '+%a %d %b %Y')" | wc -l
+      register: Packages_updated
+
+    - name: Kernel updated and server rebooted today
+      debug:
+        msg:
+          - "Server - {{ inventory_hostname }} is running with latest kernel - {{ ansible_kernel }} and got rebooted today"
+          - "There are totally {{ Packages_updated.stdout }} packages updated today"
+      when:
+        - rebooted_today
+        - kernel_updated_today
+
+    - name: Server status - Kernel updated and but server did not reboot
+      debug:
+        msg:
+          - "Server - {{ inventory_hostname }} is running with latest kernel - {{ ansible_kernel }} but did not reboot today"
+          - "There are totally {{ Packages_updated.stdout }} packages updated today"
+      when:
+        - kernel_updated_today
+        - not rebooted_today
+
+    - name: Scenario: Kernel not updated and server did not reboot today
+      assert:
+        that:
+          - false
+        fail_msg:
+          - "Server - {{ inventory_hostname }} is not running with latest kernel and did not reboot today"
+          - "There are totally {{ Packages_updated.stdout }} packages updated today"
+        quiet: true
+      ignore_errors: yes
+      when:
+        - not rebooted_today
+        - not kernel_updated_today
