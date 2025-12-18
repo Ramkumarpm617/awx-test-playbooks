@@ -1,0 +1,30 @@
+- name: Prepare log file for post-check checks
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+
+    - name: Run setup to gather date fact
+      setup:
+      delegate_to: localhost
+      run_once: true
+
+    - name: Set timestamp for log file
+      set_fact:
+        timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Clear up existing log file
+      file:
+        dest: "/ansible/patching_logs/post_patch_checks/{{ log_file_name }}_{{ timestamp }}.log"
+        state: absent
+      delegate_to: localhost
+      run_once: true
+
+    - name: Create log file
+      file:
+        dest: "/ansible/patching_logs/post_patch_checks/{{ log_file_name }}_{{ timestamp }}.log"
+        state: touch
+      delegate_to: localhost
+      run_once: true

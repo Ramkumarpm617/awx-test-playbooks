@@ -1,0 +1,19 @@
+- name: Running the post-patch checks
+  hosts: all
+  become: false
+
+  tasks:
+    - name: Role execution - create_log_file
+      include_role:
+        name: post_patch_check_create_log
+      vars:
+        log_file_name: "PPC"
+
+    - name: Role execution - post_patch_check
+      include_role:
+        name: post_patch_check
+
+  post_tasks:
+    - name: Role execution - email the report
+      include_role:
+        name: post_patch_check_email
