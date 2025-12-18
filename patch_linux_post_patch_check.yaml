@@ -13,7 +13,7 @@
       include_role:
         name: post_patch_check
 
-  post_tasks:
-    - name: Role execution - email the report
-      include_role:
-        name: post_patch_check_email
+#  post_tasks:
+#    - name: Role execution - email the report
+#      include_role:
+#        name: post_patch_check_email
