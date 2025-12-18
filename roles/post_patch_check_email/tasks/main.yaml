@@ -4,7 +4,7 @@
     subject: "Post Patch Check Result for Ansible Patch group {{ ansible_limit }}"
     body: |
       <h1>Post Patch Check Report - {{ ansible_limit }}</h1>
-      {{ lookup('template', '{{ local_dir_ppc }}/PPC_{{ timestamp }}.log') }}
+      {{ lookup('template', local_dir_ppc ~ '/PPC_' ~ timestamp ~ '.log') }}
     subtype: html
   delegate_to: localhost
   run_once: true
