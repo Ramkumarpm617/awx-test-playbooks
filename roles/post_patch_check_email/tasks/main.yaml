@@ -1,5 +1,5 @@
 - name: Email the post-check report
-  mail:
+  ansible.builtin.mail:
     to: "{{ report_email_address }}"
     subject: "Post Patch Check Result for Ansible Patch group {{ ansible_limit }}"
     body: |
