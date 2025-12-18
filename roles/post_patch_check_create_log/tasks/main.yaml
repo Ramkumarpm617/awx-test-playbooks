@@ -9,24 +9,16 @@
   delegate_to: localhost
   run_once: true
 
-- name: Ensure post patch log directory exists
-  file:
-    path: "/ansible/logs/post_patch_checks"
-    state: directory
-    mode: '0777'
-  delegate_to: localhost
-  run_once: true
-
 - name: Clear up existing log file
   file:
-    dest: "/ansible/logs/post_patch_checks/{{ log_file_name }}_{{ timestamp }}.log"
+    dest: "{{ local_dir_ppc }}/{{ log_file_name }}_{{ timestamp }}.log"
     state: absent
   delegate_to: localhost
   run_once: true
 
 - name: Create log file
   file:
-    dest: "/ansible/logs/post_patch_checks/{{ log_file_name }}_{{ timestamp }}.log"
+    dest: "{{ local_dir_ppc }}/{{ log_file_name }}_{{ timestamp }}.log"
     state: touch
   delegate_to: localhost
   run_once: true
