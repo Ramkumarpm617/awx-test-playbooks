@@ -1,1 +1,1 @@
-local_dir_ppc: "/ansible/logs/post_patch_checks"
+local_dir_ppc: "/tmp"
