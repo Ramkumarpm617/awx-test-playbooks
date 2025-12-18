@@ -1,0 +1,77 @@
+- name: Get last reboot date
+  shell: uptime -s | awk '{print $1}'
+  register: last_reboot
+  changed_when: false
+
+- name: Get today's date
+  shell: date +%F
+  register: current_date
+  changed_when: false
+
+- name: Check if rebooted today
+  set_fact:
+    rebooted_today: "{{ last_reboot.stdout == current_date.stdout }}"
+
+- name: Get latest kernel install date
+  shell: "rpm -q --last kernel | head -n 1 | awk '{print $2, $3, $4, $5}'"
+  register: kernel_install
+  changed_when: false
+
+- name: Get today date (rpm format)
+  shell: "date '+%a %d %b %Y'"
+  register: today_date
+  changed_when: false
+
+- name: Check if kernel updated today
+  set_fact:
+    kernel_updated_today: "{{ kernel_install.stdout == today_date.stdout }}"
+
+- name: Packages updated today
+  shell: rpm -qa --last | grep "$(date '+%a %d %b %Y')" | wc -l
+  register: packages_updated
+  changed_when: false
+
+- name: Kernel updated & rebooted today
+  lineinfile:
+    dest: "{{ local_dir_ppc }}/PPC_{{ timestamp }}.log"
+    line: >
+      {{ inventory_hostname }} |
+      Kernel: {{ ansible_kernel }} |
+      Rebooted Today |
+      Packages: {{ packages_updated.stdout }} |
+      <span style="color:#00ff00;">PASS</span>
+  when:
+    - kernel_updated_today
+    - rebooted_today
+  delegate_to: localhost
+  become: false
+
+- name: Kernel updated but not rebooted
+  lineinfile:
+    dest: "{{ local_dir_ppc }}/PPC_{{ timestamp }}.log"
+    line: >
+      {{ inventory_hostname }} |
+      Kernel: {{ ansible_kernel }} |
+      Not Rebooted |
+      Packages: {{ packages_updated.stdout }} |
+      <span style="color:#ffa500;">WARNING</span>
+  when:
+    - kernel_updated_today
+    - not rebooted_today
+  delegate_to: localhost
+  become: false
+
+- name: Kernel not updated and not rebooted
+  lineinfile:
+    dest: "{{ local_dir_ppc }}/PPC_{{ timestamp }}.log"
+    line: >
+      {{ inventory_hostname }} |
+      Kernel NOT Updated |
+      Not Rebooted |
+      Packages: {{ packages_updated.stdout }} |
+      <span style="color:#ff0000;">FAIL</span>
+  when:
+    - not kernel_updated_today
+    - not rebooted_today
+  delegate_to: localhost
+  become: false
